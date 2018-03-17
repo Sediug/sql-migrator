@@ -1,0 +1,2 @@
+# SQL Migrator
+Electron application which generate an SQL script (and allow you to apply it directly) for replacing a set of words (for other words) in multiple schemas / tables whithing a mysql database.
