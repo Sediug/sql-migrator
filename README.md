@@ -24,7 +24,15 @@ Run:
 npm start
 ```
 
+## Packaging SQL Migrator
+
+Run:
+```
+npm run package
+```
+
 Yes, it really is that simple. If you want to specify platform / arch, use the --platform=<platform> and --arch=<arch> arguments.
+
 
 ## Generating a distributable
 
