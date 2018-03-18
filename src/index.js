@@ -15,6 +15,31 @@ if (isDevMode) enableLiveReload({ strategy: 'react-hmr' });
 // MySQL connection var
 let connection;
 
+/**
+ * Open a db connection an perforn a query.
+ *
+ * @param {string} sql Query sql.
+ * @param {function} callback Callback called when the data is fetched.
+ * @return {array} Results
+ */
+function query(sql, callback) {
+  connection.connect();
+
+  connection.query(sql, (error, results) => {
+    if (error) {
+      connection.end();
+      throw error;
+    }
+
+    callback(results);
+  });
+
+  connection.end();
+}
+
+/**
+ * Creates a new window async.
+ */
 async function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({
@@ -42,7 +67,14 @@ async function createWindow() {
   // Listen for db connection ask from renderer process
   ipcMain.on('db-conection', (e, config) => {
     connection = mysql.createConnection(config);
-    e.sender.send('db-conected', 2);
+
+    try {
+      query('select TABLE_SCHEMA, TABLE_NAME from information_schema.columns group by TABLE_NAME', (results) => {
+        e.sender.send('db-conected', results);
+      });
+    } catch (err) {
+      e.sender.send('db-error', 'Query error: ' + err.message);
+    }
   });
 
   // Listen for db connection ask from renderer process
@@ -50,17 +82,13 @@ async function createWindow() {
     if (connection === undefined) {
       e.sender.send('db-error', 'There\' no db connection.');
     } else {
-      connection.connect();
-
-      connection.query(sqlGenerator(data.words, data.schemas), (error, results) => {
-        if (error) {
-          e.sender.send('db-error', 'Query error: ' + error);
-        }
-
-        console.log('The solution is: ', results.length);
-      });
-
-      connection.end();
+      try {
+        query(sqlGenerator(data.words, data.schemas), (results) => {
+          console.log('The solution is: ', results.length);
+        });
+      } catch (err) {
+        e.sender.send('db-error', 'Query error: ' + err.message);
+      }
     }
   });
 }
@@ -86,5 +114,3 @@ app.on('activate', () => {
     createWindow();
   }
 });
-
-// App core code
