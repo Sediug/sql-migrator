@@ -1,6 +1,8 @@
 /* global document */
 import React, { PureComponent } from 'react';
 import { ipcRenderer } from 'electron';
+import ProperCombo from 'react-propercombo';
+import Words from './words';
 
 export default class App extends PureComponent {
   constructor(props) {
@@ -8,13 +10,27 @@ export default class App extends PureComponent {
     this.props = props;
     this.state = {
       connected: false,
+      tables: [],
+      schemas: [],
+      selectedSchemas: [],
+      words: {}
     };
   }
 
   componentWillMount() {
     // Listen for db connected
-    ipcRenderer.on('db-conected', () => {
-      this.setState({ connected: true });
+    ipcRenderer.on('db-conected', (e, results) => {
+      const schemas = new Set();
+      const tables = results.map((record) => {
+        schemas.add(record.TABLE_SCHEMA);
+        return record.TABLE_NAME;
+      });
+
+      this.setState({
+        connected: true,
+        tables,
+        schemas,
+      });
     });
   }
 
@@ -82,12 +98,45 @@ export default class App extends PureComponent {
     ) : null;
   }
 
+  buildSelectors() {
+    return this.state.connected ? (
+      <div className="selectors">
+        <ProperCombo
+          data={this.state.schemas.map(sch => ({ value: sch, label: sch }))}
+          multiSelect
+          afterSelect={(data, selection) => {
+            this.setState({ selectedSchemas: selection });
+          }}
+        />
+        <h3>Words</h3>
+        <Words
+          words={this.state.words}
+          onAdd={() => {
+            const words = { ...this.state.words };
+            words.new = '';
+            this.setState({ words });
+          }}
+          onRemove={(word) => {
+            const words = { ...this.state.words };
+            delete words[word];
+            this.setState({ words });
+          }}
+        />
+      </div>
+    ) : null;
+  }
+
   render() {
     const creditForm = this.buildDbCredentialsForm();
+    const selectors = this.buildSelectors();
+
     return (
       <div className="container-fluid">
         <div className="row col-12 col-md-12">
           {creditForm}
+        </div>
+        <div className="row col-12 col-md-12">
+          {selectors}
         </div>
         <div className="row col-12 col-md-12">
           <button
