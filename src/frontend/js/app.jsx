@@ -13,16 +13,22 @@ export default class App extends PureComponent {
       tables: [],
       schemas: [],
       selectedSchemas: [],
-      words: {}
+      words: {},
     };
   }
 
   componentWillMount() {
     // Listen for db connected
     ipcRenderer.on('db-conected', (e, results) => {
-      const schemas = new Set();
+      const schemasSet = new Set();
+      const schemas = [];
+
       const tables = results.map((record) => {
-        schemas.add(record.TABLE_SCHEMA);
+        if (!schemasSet.has(record.TABLE_SCHEMA)) {
+          schemas.push(record.TABLE_SCHEMA);
+          schemasSet.add(record.TABLE_SCHEMA);
+        }
+        
         return record.TABLE_NAME;
       });
 
@@ -101,6 +107,7 @@ export default class App extends PureComponent {
   buildSelectors() {
     return this.state.connected ? (
       <div className="selectors">
+        <h3>Schemas</h3>
         <ProperCombo
           data={this.state.schemas.map(sch => ({ value: sch, label: sch }))}
           multiSelect
@@ -112,12 +119,12 @@ export default class App extends PureComponent {
         <Words
           words={this.state.words}
           onAdd={() => {
-            const words = { ...this.state.words };
+            const words = Object.assign({}, this.state.words);
             words.new = '';
             this.setState({ words });
           }}
           onRemove={(word) => {
-            const words = { ...this.state.words };
+            const words = Object.assign({}, this.state.words);
             delete words[word];
             this.setState({ words });
           }}
