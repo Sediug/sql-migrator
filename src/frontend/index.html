@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<title>SQL Migrator vs 0.0.1</title>
+	<!-- JS -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.bundle.min.js" integrity="sha384-feJI7QwhOS+hwpX2zkaeJQjeiwlhOP+SdQDqhgvvo1DsjtiSQByFdThsxO669S2D" crossorigin="anonymous"></script>
+	
+	<!-- CSS -->
+	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+</head>
+<body style="overflow: hidden; background-color: rgba(0,0,0,0); margin: 0" >
+	<header class="navbar navbar-expand navbar-dark flex-column flex-md-row bd-navbar"></header>
+	<div id="App"></div>
+</body>
+
+<script type="text/jsx">
+	import React from 'react';
+	import ReactDOM from 'react-dom';
+	import {AppContainer} from 'react-hot-loader';
+
+	const render = () => {
+		const App = require('./js/app').default;
+		ReactDOM.render(<AppContainer><App /></AppContainer>, document.getElementById('App'));
+	};
+
+	render();
+	if (module.hot) {
+		module.hot.accept(render);
+	}
+</script>
+</html>
