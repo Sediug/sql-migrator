@@ -48,8 +48,8 @@
       "electronInstallerDebian": {},
       "electronInstallerRedhat": {},
       "github_repository": {
-        "owner": "",
-        "name": ""
+        "owner": "Sediug",
+        "name": "sql-migrator"
       },
       "windowsStoreConfig": {
         "packageName": "",
